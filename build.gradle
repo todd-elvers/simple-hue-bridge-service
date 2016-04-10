@@ -29,6 +29,6 @@ dependencies {
 // Modify the :jar task to ensure it includes all compile dependencies
 jar {
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.compile.asFileTree.files.collect { zipTree(it) }
     }
 }

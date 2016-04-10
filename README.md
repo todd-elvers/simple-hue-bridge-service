@@ -21,8 +21,9 @@ Simplify the process of connecting to a Hue bridge and storing the credentials f
 
 Make the following changes to your `build.gradle` file:
 
-- Add ```maven { url "https://jitpack.io" }``` to the ```repositories``` closure 
-- Add ```compile 'com.github.todd-elvers:simple-hue-bridge-service:1.0.1'``` to the ```dependencies``` 
+- Add ```maven { url "https://jitpack.io" }``` to the ```repositories``` closure
+    -   *NOTE:* It's important that this is declared last in the the ```repositories``` closure
+- Add ```compile 'com.github.todd-elvers:simple-hue-bridge-service:1.0.2'``` to the ```dependencies``` closure
 
 ## Using this in your project:
 

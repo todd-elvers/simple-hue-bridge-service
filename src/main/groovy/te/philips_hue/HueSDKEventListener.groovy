@@ -55,8 +55,7 @@ class HueSDKEventListener implements PHSDKListener {
     void onBridgeConnected(PHBridge bridge, String username) {
         hueSDK.setSelectedBridge(bridge)
         PHHeartbeatManager.getInstance().enableLightsHeartbeat(bridge, PHHueSDK.HB_INTERVAL)
-        log.info("\rBridge Connected!")
-        log.debug("Bridge details:\n\tUsername: $username\n\tLights: ${bridge.resourceCache.allLights*.identifier.join(',')}")
+        log.info("Bridge Connected!  [Username: $username | Lights: ${bridge.resourceCache.allLights*.identifier.join(',')}]")
         if(pushlinkAuthWasRequired) {
             pushlinkAuthWasRequired = false
             configHandler.updateConfigFile([
@@ -110,7 +109,7 @@ class HueSDKEventListener implements PHSDKListener {
     void onParsingErrors(List<PHHueParsingError> parsingErrors) {
         log.error("Parsing errors:")
         parsingErrors.each {
-            log.error("\t$it.code - $it.resourceId - $it.message")
+            log.error("$it.code - $it.resourceId - $it.message")
         }
     }
 }
