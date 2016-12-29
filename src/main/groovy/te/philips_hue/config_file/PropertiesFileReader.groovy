@@ -4,13 +4,11 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 class PropertiesFileReader {
-    static Properties loadPropertiesFromInputStream(InputStream inputStream) {
-        try {
-            def properties = new Properties()
+    static Properties read(File propFile) {
+        def properties = new Properties()
+        propFile.withInputStream { inputStream ->
             properties.load(inputStream)
-            return properties
-        } finally {
-            inputStream.close()
         }
+        return properties
     }
 }

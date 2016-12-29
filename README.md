@@ -1,8 +1,8 @@
-# simple-philips-hue-connector
+# simple-hue-bridge-service
 
 <br/>
 
-## Goal of this app:
+## Purpose:
 
 Simplify the process of connecting to a Hue bridge and storing the credentials for future use.
 
@@ -10,6 +10,7 @@ Simplify the process of connecting to a Hue bridge and storing the credentials f
 
 ## What this app does:
 
+- Initializes the Philips Hue SDK
 - Looks for a Hue bridge on the LAN
 - Tries to connect to it (handling authentication if necessary)
 - Stores the Hue bridge credentials in a temp. file
@@ -27,9 +28,11 @@ Make the following changes to your `build.gradle` file:
 
 ## Using this in your project:
 
-#### Simple Case:
+The only class you need to call from this library is `HueBridgeService`.  This class will take care of
+initializing the SDK, adding a hook to shutdown the SDK, authenticating with the bridge, and storing 
+the bridge credentials. 
 
-To initialize the ```HueBridgeService``` in the case, simply provide the name of your application
+To initialize the `HueBridgeService` simply provide the name of your application
 and a callback that will be executed once the service has successfully connected to a bridge.
 
 In Groovy:
@@ -51,15 +54,7 @@ HueBridgeService hueBridgeService = HueBridgeService.createWithBridgeConnectionC
 hueBridgeService.findAndConnectToBridge();
 ```
 
+
+When the `HueBridgeService` instance is no longer of use, call `hueBridgeService.shutdown()` to terminate the connection to the bridge.
 <br/>
 
-#### Complex Case:
-
-To initialize the ```HueBridgeService``` with more fine-grained control, simply provide your implementation
-of ```PHSDKListener```.  <b>Note:</b> This method requires you to handle basically everything.
-
-```groovy
-HueBridgeService hueBridgeService = HueBridgeService.createWithCustomSDKListener("<your-app-name>", yourSdkListenerImpl)
-
-hueBridgeService.findAndConnectToBridge()
-```
