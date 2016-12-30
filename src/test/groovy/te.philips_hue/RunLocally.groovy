@@ -7,6 +7,7 @@ class RunLocally {
         def callback = {
             println "\nConnected to bridge - everything functioning correctly.\n"
             hueBridgeService.shutdown()
+            hueBridgeService.shutdown()
         }
 
         hueBridgeService = HueBridgeService.createWithBridgeConnectionCallback("Test", callback)

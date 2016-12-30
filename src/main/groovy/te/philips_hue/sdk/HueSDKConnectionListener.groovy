@@ -6,34 +6,48 @@ import com.philips.lighting.hue.sdk.PHSDKListener
 import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager
 import com.philips.lighting.model.PHBridge
 import com.philips.lighting.model.PHHueParsingError
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.util.logging.Slf4j
 import te.philips_hue.config_file.ConfigFileHandler
+
+import static com.philips.lighting.hue.sdk.PHMessageType.BRIDGE_NOT_FOUND
+import static com.philips.lighting.hue.sdk.PHMessageType.PUSHLINK_AUTHENTICATION_FAILED
+import static com.philips.lighting.hue.sdk.PHMessageType.PUSHLINK_BUTTON_NOT_PRESSED
 
 
 /**
  * This is the class that listens for changes from the Hue SDK.
  */
 @Slf4j
-@EqualsAndHashCode(excludes = ['hueSDK', 'configHandler'])
-class HueSDKEventListener implements PHSDKListener {
+@EqualsAndHashCode(excludes = ['hueSDK'])
+@CompileStatic
+class HueSDKConnectionListener implements PHSDKListener {
 
-    private HueSDKErrorHandler errorHandler = new HueSDKErrorHandler()
+    private PHHueSDK hueSDK = PHHueSDK.getInstance()
+    private BridgeConnectedCallback bridgeConnectedCallback
     private boolean pushlinkAuthWasRequired = false
+    private int pushlinkButtonTimeoutCounter = 0
 
-    BridgeConnectedCallback bridgeConnectedCallback
-
-    HueSDKEventListener(BridgeConnectedCallback callback) {
+    HueSDKConnectionListener(BridgeConnectedCallback callback) {
         this.bridgeConnectedCallback = callback
     }
 
     //TODO: Handle multiple access points being returned
     @Override
     void onAccessPointsFound(List<PHAccessPoint> accessPoints) {
-        def accessPoint = accessPoints.first()
-        log.info("Access point found! (IP=$accessPoint.ipAddress)")
-        errorHandler.resetPushlinkButtonTimer()
-        PHHueSDK.getInstance().connect(accessPoint)
+        PHAccessPoint hueBridge = accessPoints.first()
+        if(accessPoints.size() == 1) {
+            log.info("Hue bridge found! Connecting to {}.", hueBridge.ipAddress)
+        } else {
+            log.info("{} Hue bridges found! Connecting to {}.", accessPoints.size(), hueBridge.ipAddress)
+        }
+        
+        // Reset pushlink logic
+        pushlinkButtonTimeoutCounter = 30
+        pushlinkAuthWasRequired = false
+
+        hueSDK.connect(hueBridge)
     }
 
     /**
@@ -50,15 +64,14 @@ class HueSDKEventListener implements PHSDKListener {
         finalizeConnection(bridge)
 
         if(pushlinkAuthWasRequired) {
-            pushlinkAuthWasRequired = false
             ConfigFileHandler.getInstance().updateConfigFile(bridge, username)
         }
 
-        bridgeConnectedCallback.execute()
+        bridgeConnectedCallback?.execute()
     }
 
-    private static void finalizeConnection(PHBridge bridge) {
-        PHHueSDK.getInstance().setSelectedBridge(bridge)
+    private void finalizeConnection(PHBridge bridge) {
+        hueSDK.setSelectedBridge(bridge)
         PHHeartbeatManager.getInstance().enableLightsHeartbeat(bridge, PHHueSDK.HB_INTERVAL)
     }
 
@@ -71,7 +84,7 @@ class HueSDKEventListener implements PHSDKListener {
     @Override
     void onAuthenticationRequired(PHAccessPoint accessPoint) {
         log.info("Authentication required!  You have 30 seconds to press the blue button on your Hue Bridge.")
-        PHHueSDK.getInstance().startPushlinkAuthentication(accessPoint)
+        hueSDK.startPushlinkAuthentication(accessPoint)
         pushlinkAuthWasRequired = true
     }
 
@@ -85,7 +98,24 @@ class HueSDKEventListener implements PHSDKListener {
 
     @Override
     void onError(int code, String message) {
-        errorHandler.handleError(code, message)
+        switch (code) {
+            case PUSHLINK_BUTTON_NOT_PRESSED:
+                print("\r${pushlinkButtonTimeoutCounter--} seconds remaining...")
+                break
+
+            case PUSHLINK_AUTHENTICATION_FAILED:
+                println("\r0 seconds remaining.")
+                log.info("Hue bridge button not pressed in time, authentication failed.")
+                HueSDKManager.shutdown()
+                break
+
+            case BRIDGE_NOT_FOUND:
+                log.info("No bridge was found on your network.")
+                break
+
+            default:
+                log.error("Error #$code - $message")
+        }
     }
 
     /**

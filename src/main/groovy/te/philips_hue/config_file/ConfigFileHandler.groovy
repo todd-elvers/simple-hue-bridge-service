@@ -2,15 +2,17 @@ package te.philips_hue.config_file
 
 import com.philips.lighting.hue.sdk.PHAccessPoint
 import com.philips.lighting.model.PHBridge
+import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.apache.commons.io.FileUtils
 import wslite.rest.RESTClient
 
 
 /**
- * Handles the creation/updating/reading of the configuration file that stores the Hue bridge credentials.
+ * Handles the creation/updating/reading of the config file that stores the Hue bridge credentials.
  */
 @Slf4j
+@CompileStatic
 @Singleton(strict = false)
 class ConfigFileHandler {
     private static final String CONFIG_FILE_NAME = "cached-hue-bridge-credentials.properties"
@@ -19,6 +21,7 @@ class ConfigFileHandler {
     private static final String USERNAME_PROP = 'username'
     private static final File CONFIG_FILE = new File(System.getProperty("java.io.tmpdir"), CONFIG_FILE_NAME)
 
+    // strict=false above allows us to have a private constructor
     private ConfigFileHandler() {
         if(!CONFIG_FILE.exists()) {
             FileUtils.writeStringToFile(CONFIG_FILE, "", false)
@@ -60,7 +63,7 @@ class ConfigFileHandler {
         try {
             String username = props.get(USERNAME_PROP)
             String ipAddress = props.get(IP_ADDRESS_PROP)
-            return !(new RESTClient("http://$ipAddress/api/$username").get().json.error)
+            return !new RESTClient("http://$ipAddress/api/$username").get().propertyMissing('json')['error']
         } catch (Throwable ignored) {
             return false
         }

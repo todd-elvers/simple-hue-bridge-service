@@ -1,7 +1,8 @@
 package te.philips_hue
 
+import groovy.transform.CompileStatic
 import te.philips_hue.sdk.BridgeConnectedCallback
-import te.philips_hue.sdk.HueSDKEventListener
+import te.philips_hue.sdk.HueSDKConnectionListener
 import te.philips_hue.sdk.HueSDKManager
 
 /**
@@ -13,6 +14,7 @@ import te.philips_hue.sdk.HueSDKManager
  * machine. The next time the app using this class starts up, the credentials from the config file
  * will be tried first, usually resulting in a sub-second connection time.
  */
+@CompileStatic
 class HueBridgeService {
 
     static HueBridgeService createWithBridgeConnectionCallback(String appName, BridgeConnectedCallback callback) {
@@ -20,15 +22,15 @@ class HueBridgeService {
     }
 
     private HueBridgeService(String appName, BridgeConnectedCallback callback) {
-        HueSDKManager.initSDKIfNecessary(appName)
-        HueSDKManager.registerSDKListener(new HueSDKEventListener(callback))
+        HueSDKManager.initSDK(appName)
+        HueSDKManager.registerSDKListener(new HueSDKConnectionListener(callback))
     }
 
     /**
      * Connects to a Hue bridge on the network by either:
      * <ul>
      *     <li>Reading a bridge's credentials from a properties file in the temp. directory</li>
-     *     <li>Searching over the network for a bridge and starting the authentication process</li>
+     *     <li>Searching over the network for a bridge</li>
      * </ul>
      *
      * The search process is done on a separate thread so that this method does not block.
