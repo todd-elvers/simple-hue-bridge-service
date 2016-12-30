@@ -1,20 +1,16 @@
 # simple-hue-bridge-service
 
-<br/>
-
-## Purpose:
-
-Simplify the process of connecting to a Hue bridge and storing the credentials for future use.
+A library to simplify the process of connecting to a Hue bridge and storing the credentials for future use.
 
 <br/>
 
 ## What this app does:
 
 - Initializes the Philips Hue SDK
-- Looks for a Hue bridge on the LAN
-- Tries to connect to it (handling authentication if necessary)
-- Stores the Hue bridge credentials in a temp. file
-- Reads the temp. file on subsequent executions of this library so startup is fast
+- Searches for a Hue bridge over the network 
+- Handles PushLink authentication
+- Stores the credentials returned by the Hue bridge in a temp. file 
+- Uses the stored credentials on subsequent executions of the library, so connecting is fast 
 
 <br/>
 
@@ -24,7 +20,7 @@ Make the following changes to your `build.gradle` file:
 
 - Add ```maven { url "https://jitpack.io" }``` to the ```repositories``` closure
     -   *NOTE:* It's important that this is declared last in the the ```repositories``` closure
-- Add ```compile 'com.github.todd-elvers:simple-hue-bridge-service:1.0.2'``` to the ```dependencies``` closure
+- Add ```compile 'com.github.todd-elvers:simple-hue-bridge-service:1.2.0'``` to the ```dependencies``` closure
 
 ## Using this in your project:
 
