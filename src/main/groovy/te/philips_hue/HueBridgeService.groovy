@@ -17,13 +17,18 @@ import te.philips_hue.sdk.HueSDKManager
 @CompileStatic
 class HueBridgeService {
 
-    static HueBridgeService createWithBridgeConnectionCallback(String appName, BridgeConnectedCallback callback) {
-        new HueBridgeService(appName, callback)
+    static HueBridgeService createWithBridgeConnectionCallback(String appName, File configFile = null, BridgeConnectedCallback callback) {
+        new HueBridgeService(appName, configFile, callback)
     }
 
-    private HueBridgeService(String appName, BridgeConnectedCallback callback) {
-        HueSDKManager.initSDK(appName)
-        HueSDKManager.registerSDKListener(new HueSDKConnectionListener(callback))
+    private HueBridgeService(String appName, File configFile = null, BridgeConnectedCallback callback) {
+        try {
+            HueSDKManager.initSDK(appName, configFile)
+            HueSDKManager.registerSDKListener(new HueSDKConnectionListener(callback))
+        } catch(exception) {
+            HueSDKManager.shutdown()
+            throw exception
+        }
     }
 
     /**

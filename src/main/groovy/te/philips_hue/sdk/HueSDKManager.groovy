@@ -20,13 +20,19 @@ class HueSDKManager {
      * Configures the Hue SDK's appName & deviceName and adds a shutdown hook to destroy the SDK
      * reference when the JVM is terminated.
      */
-    static void initSDK(String appName) {
+    static void initSDK(String appName, File specificConfigFile) {
         PHHueSDK.create().with {
             setAppName(getAppName() ?: appName)
             setDeviceName(getDeviceName() ?: "${getProperty('user.name')}@${getProperty('os.name')}")
         }
 
         addShutdownHook { shutdown() }
+
+        if(specificConfigFile) {
+            ConfigFileHandler.initWithSpecificConfigFile(specificConfigFile)
+        } else {
+            ConfigFileHandler.initWithTempDirConfigFile()
+        }
     }
 
     /**

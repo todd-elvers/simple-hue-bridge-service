@@ -5,6 +5,6 @@ import te.philips_hue.config_file.ConfigFileHandler
 
 class DeleteConfigFileInTempDir {
     static void main(String[] args) {
-        FileUtils.deleteQuietly(ConfigFileHandler.getInstance().CONFIG_FILE)
+        FileUtils.deleteQuietly(ConfigFileHandler.getInstance().configFile)
     }
 }
