@@ -10,7 +10,6 @@ class RunLocallyWithSpecificConfigFile {
         }
 
         def configFile = new File(Thread.currentThread().contextClassLoader.getResource("custom_config_file.txt").toURI())
-        println configFile
 
         hueBridgeService = HueBridgeService.createWithBridgeConnectionCallback("Test", configFile, callback)
         hueBridgeService.findAndConnectToBridge()

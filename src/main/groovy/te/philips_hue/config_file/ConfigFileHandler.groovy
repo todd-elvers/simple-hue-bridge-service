@@ -13,12 +13,12 @@ import wslite.rest.RESTClient
  */
 @Slf4j
 @CompileStatic
-@Singleton(strict = false, lazy = true)
 class ConfigFileHandler {
     private static final String CONFIG_FILE_NAME = "cached-hue-bridge-credentials.properties"
     private static final String CONFIG_FILE_COMMENTS = "Philips Hue Bridge Credentials - created by simple-hue-bridge-service."
     private static final String IP_ADDRESS_PROP = 'ip_address'
     private static final String USERNAME_PROP = 'username'
+    private static ConfigFileHandler instance = null
     private static File configFile = null
 
     /**
@@ -27,7 +27,6 @@ class ConfigFileHandler {
      * @param specificConfigFile the exact file where the hue credentials should be written to
      */
     static void initWithSpecificConfigFile(File specificConfigFile) {
-        log.debug("Initializing w/ specific config file.")
         if(configFile) throw new IllegalStateException("ConfigFileHandler has already been initialized.")
         if(!specificConfigFile.exists()) throw new FileNotFoundException("Could not find file $specificConfigFile.")
         configFile = specificConfigFile
@@ -37,9 +36,16 @@ class ConfigFileHandler {
      * Initializes this ConfigFileHandler with a config file located in the user's temp. directory.
      */
     static void initWithTempDirConfigFile() {
-        log.debug("Initializing w/ temp. dir config file.")
         if(configFile) throw new IllegalStateException("ConfigFileHandler has already been initialized.")
         configFile = new File(System.getProperty("java.io.tmpdir"), CONFIG_FILE_NAME)
+    }
+
+    static ConfigFileHandler getInstance() {
+        if(!instance) {
+            instance = new ConfigFileHandler()
+        }
+
+        return instance
     }
 
     // strict=false above allows us to have a private constructor
@@ -74,9 +80,13 @@ class ConfigFileHandler {
     }
 
     boolean configFileIsStillValid() {
-        println configFile
         Properties props = PropertiesFileReader.read(configFile)
         return credentialsExist(props) && credentialsStillValid(props)
+    }
+
+    void shutdown() {
+        instance = null
+        configFile = null
     }
 
     private static boolean credentialsExist(Properties props) {

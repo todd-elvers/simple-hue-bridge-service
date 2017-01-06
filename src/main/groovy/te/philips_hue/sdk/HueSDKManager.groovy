@@ -1,8 +1,6 @@
 package te.philips_hue.sdk
 
 import com.philips.lighting.hue.sdk.*
-import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager
-import com.philips.lighting.hue.sdk.notification.impl.PHNotificationManagerImpl
 import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import te.philips_hue.config_file.ConfigFileHandler
@@ -21,17 +19,19 @@ class HueSDKManager {
      * reference when the JVM is terminated.
      */
     static void initSDK(String appName, File specificConfigFile) {
-        PHHueSDK.create().with {
-            setAppName(getAppName() ?: appName)
-            setDeviceName(getDeviceName() ?: "${getProperty('user.name')}@${getProperty('os.name')}")
-        }
+        if(!isSdkConnected()) {
+            PHHueSDK.create().with {
+                setAppName(getAppName() ?: appName)
+                setDeviceName(getDeviceName() ?: "${getProperty('user.name')}@${getProperty('os.name')}")
+            }
 
-        addShutdownHook { shutdown() }
+            addShutdownHook { shutdown() }
 
-        if(specificConfigFile) {
-            ConfigFileHandler.initWithSpecificConfigFile(specificConfigFile)
-        } else {
-            ConfigFileHandler.initWithTempDirConfigFile()
+            if(specificConfigFile) {
+                ConfigFileHandler.initWithSpecificConfigFile(specificConfigFile)
+            } else {
+                ConfigFileHandler.initWithTempDirConfigFile()
+            }
         }
     }
 
@@ -78,13 +78,14 @@ class HueSDKManager {
      */
     @CompileStatic
     static void shutdown() {
-        if (hasNotBeenShutdown()) {
+        if (isSdkConnected()) {
             log.info("Shutting down the Hue SDK.")
             PHHueSDK.getInstance().destroySDK()
+            ConfigFileHandler.getInstance().shutdown()
         }
     }
 
-    private static final boolean hasNotBeenShutdown() {
+    private static final boolean isSdkConnected() {
         return PHHueSDK.@instance as Boolean
     }
 }
