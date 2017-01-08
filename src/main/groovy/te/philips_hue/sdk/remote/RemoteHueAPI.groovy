@@ -21,6 +21,13 @@ class RemoteHueAPI {
         return json?.lights?.keySet()?.collect { it as Integer }
     }
 
+    List<Integer> getColorLightNumbers() {
+        def response = hueAPI.get(path: '/api/getbridge', query: [token: authToken, bridgeId: bridgeId])
+        def json = new JsonSlurper().parseText(response.contentAsString)
+        def colorLights = json.lights.findAll { it.value.state.colormode }
+        return colorLights?.keySet()?.collect { it as Integer }
+    }
+
     void execute(HueLightRequest hueRequest) {
         hueAPI.post(path: '/api/sendmessage', query: [token: authToken]) {
             def data = [
