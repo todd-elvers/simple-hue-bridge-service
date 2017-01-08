@@ -9,12 +9,20 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.4'
     compile 'com.github.groovy-wslite:groovy-wslite:1.1.2', { exclude module: 'groovy-all'}
     compile 'commons-io:commons-io:2.4'
+    compile 'com.google.guava:guava:19.0'
+
+    compile 'com.mashape.unirest:unirest-java:1.4.9'
+    compile 'org.apache.httpcomponents:httpclient:4.3.6'
+    compile 'org.apache.httpcomponents:httpasyncclient:4.0.2'
+    compile 'org.apache.httpcomponents:httpmime:4.3.6'
+    compile 'org.json:json:20140107'
 
     // Hue SDK (These don't exist in Maven Central)
     compile fileTree(dir: 'libs', include: '*.jar')
 
     // Logging
     compile 'org.slf4j:slf4j-api:1.7.12'
+    compile 'org.slf4j:jcl-over-slf4j:1.7.22'
 
     testCompile 'cglib:cglib-nodep:3.2.0'
     testCompile 'org.objenesis:objenesis:2.2'

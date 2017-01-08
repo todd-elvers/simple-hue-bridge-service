@@ -1,8 +1,12 @@
 package te.philips_hue.sdk.remote
 
+import groovy.json.JsonBuilder
+import groovy.transform.CompileStatic
+
+@CompileStatic
 class HueLightRequest {
     static HueLightRequest forLight(int lightNumber) {
-        return new HueLightRequest(url: "lights/$lightNumber/state")
+        return new HueLightRequest().withUrl("lights/$lightNumber/state")
     }
 
     Map body
@@ -28,4 +32,18 @@ class HueLightRequest {
         this.body = hueColor.mapValues
         this
     }
+
+    String toJSON(String bridgeId) {
+        Map requestAsMap = [
+                bridgeId   : bridgeId,
+                clipCommand: [
+                        url   : "/api/0/" + url,
+                        method: method,
+                        body  : body
+                ]
+        ]
+
+        return new JsonBuilder(requestAsMap).toString()
+    }
+
 }

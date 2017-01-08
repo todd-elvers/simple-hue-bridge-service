@@ -3,6 +3,9 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.status.NopStatusListener
 
 import static ch.qos.logback.classic.Level.DEBUG
+import static ch.qos.logback.classic.Level.ERROR
+import static ch.qos.logback.classic.Level.INFO
+import static ch.qos.logback.classic.Level.WARN
 
 statusListener(NopStatusListener)
 
@@ -12,4 +15,4 @@ appender("CONSOLE", ConsoleAppender) {
     }
 }
 
-root(DEBUG, ["CONSOLE"])
+root(ERROR, ["CONSOLE"])

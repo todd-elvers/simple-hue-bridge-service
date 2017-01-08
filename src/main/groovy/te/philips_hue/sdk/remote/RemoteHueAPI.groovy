@@ -1,9 +1,12 @@
 package te.philips_hue.sdk.remote
 
-import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import groovy.transform.CompileStatic
+import groovy.util.logging.Slf4j
+import wslite.rest.ContentBuilder
 import wslite.rest.RESTClient
 
+@Slf4j
 class RemoteHueAPI {
 
     private final RESTClient hueAPI = new RESTClient("https://www.meethue.com")
@@ -28,18 +31,10 @@ class RemoteHueAPI {
         return colorLights?.keySet()?.collect { it as Integer }
     }
 
+    @CompileStatic
     void execute(HueLightRequest hueRequest) {
-        hueAPI.post(path: '/api/sendmessage', query: [token: authToken]) {
-            def data = [
-                    bridgeId   : bridgeId,
-                    clipCommand: [
-                            url   : "/api/0/" + hueRequest.url,
-                            method: hueRequest.method,
-                            body  : hueRequest.body
-                    ]
-            ]
-
-            urlenc(clipmessage: new JsonBuilder(data).toString())
+        hueAPI.post(path: '/api/sendmessage', query: [token: authToken]) { ContentBuilder builder ->
+            builder.urlenc(clipmessage: hueRequest.toJSON(bridgeId))
         }
     }
 
