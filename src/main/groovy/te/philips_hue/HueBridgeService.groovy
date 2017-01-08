@@ -1,9 +1,9 @@
 package te.philips_hue
 
 import groovy.transform.CompileStatic
-import te.philips_hue.sdk.BridgeConnectedCallback
-import te.philips_hue.sdk.HueSDKConnectionListener
-import te.philips_hue.sdk.HueSDKManager
+import te.philips_hue.sdk.local.BridgeConnectedCallback
+import te.philips_hue.sdk.local.HueSDKConnectionListener
+import te.philips_hue.sdk.local.HueSDKManager
 
 /**
  * <p>This class simplifies utilizing the Hue SDK by abstracting some boilerplate/configuration and

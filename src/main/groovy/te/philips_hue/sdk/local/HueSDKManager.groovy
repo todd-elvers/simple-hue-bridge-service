@@ -1,4 +1,4 @@
-package te.philips_hue.sdk
+package te.philips_hue.sdk.local
 
 import com.philips.lighting.hue.sdk.*
 import groovy.transform.CompileStatic
