@@ -9,6 +9,7 @@ import groovy.transform.CompileStatic;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class FastRemoteHueAPI {
@@ -43,6 +44,14 @@ public class FastRemoteHueAPI {
                 .queryString("token", authToken)
                 .field("clipmessage", lightRequest.toJSON(bridgeId))
                 .asJson();
+    }
+
+    public Future<HttpResponse<JsonNode>> executeAsync(HueLightRequest lightRequest) throws UnirestException {
+        return Unirest.post("https://www.meethue.com/api/sendmessage")
+                .header("content-type", "application/x-www-form-urlencoded")
+                .queryString("token", authToken)
+                .field("clipmessage", lightRequest.toJSON(bridgeId))
+                .asJsonAsync();
     }
 
     public void shutdown() throws IOException {

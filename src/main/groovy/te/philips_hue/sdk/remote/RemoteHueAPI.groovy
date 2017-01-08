@@ -31,10 +31,9 @@ class RemoteHueAPI {
         return colorLights?.keySet()?.collect { it as Integer }
     }
 
-    @CompileStatic
     void execute(HueLightRequest hueRequest) {
-        hueAPI.post(path: '/api/sendmessage', query: [token: authToken]) { ContentBuilder builder ->
-            builder.urlenc(clipmessage: hueRequest.toJSON(bridgeId))
+        hueAPI.post(path: '/api/sendmessage', query: [token: authToken]) {
+            urlenc(clipmessage: hueRequest.toJSON(bridgeId))
         }
     }
 
