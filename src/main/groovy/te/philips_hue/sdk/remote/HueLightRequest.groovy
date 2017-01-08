@@ -9,6 +9,10 @@ class HueLightRequest {
         return new HueLightRequest().withUrl("lights/$lightNumber/state")
     }
 
+    static HueLightRequest forGroup(int groupNumber = 0) {
+        return new HueLightRequest().withUrl("groups/$groupNumber/action")
+    }
+
     Map body
     String url
     String method = "PUT"
