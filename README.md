@@ -1,3 +1,9 @@
+TODO
+-----------
+* Revisit this application and simplify it
+* Add add section around currently available SDKs
+* Convert build.gradle to Gradle 5 conventions
+
 # simple-hue-bridge-service
 
 A library to simplify the process of connecting to a Hue bridge and storing the credentials for future use.
@@ -6,7 +12,6 @@ A library to simplify the process of connecting to a Hue bridge and storing the 
 
 ## What this app does:
 
-- Initializes the Philips Hue SDK
 - Searches for a Hue bridge over the network 
 - Handles PushLink authentication
 - Stores the credentials returned by the Hue bridge in a temp. file 
@@ -33,7 +38,7 @@ and a callback that will be executed once the service has successfully connected
 
 In Groovy:
 ```groovy
-HueBridgeService hueBridgeService = HueBridgeService.createWithBridgeConnectionCallback("<your-app-name>") {
+HueBridgeService hueBridgeService = new HueBridgeService("<your-app-name>") { PHBridge bridge ->
     // Callback that will execute when the bridge has connected
 }
 
@@ -43,7 +48,7 @@ hueBridgeService.findAndConnectToBridge()
 
 In Java:
 ```java
-HueBridgeService hueBridgeService = HueBridgeService.createWithBridgeConnectionCallback("<your-app-name>", () -> {
+HueBridgeService hueBridgeService = new HueBridgeService("<your-app-name>", (bridge) -> {
     // Callback that will execute when the bridge has connected
 });
 

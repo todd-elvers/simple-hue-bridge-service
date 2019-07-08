@@ -1,9 +1,13 @@
 package te.philips_hue
 
+
+import com.philips.lighting.model.PHBridge
 import groovy.transform.CompileStatic
-import te.philips_hue.sdk.local.BridgeConnectedCallback
-import te.philips_hue.sdk.local.HueSDKConnectionListener
-import te.philips_hue.sdk.local.HueSDKManager
+import org.jetbrains.annotations.Nullable
+import te.philips_hue.sdk.BridgeConnectionListener
+import te.philips_hue.sdk.HueSDKManager
+
+import java.util.function.Consumer
 
 /**
  * <p>This class simplifies utilizing the Hue SDK by abstracting some boilerplate/configuration and
@@ -15,32 +19,32 @@ import te.philips_hue.sdk.local.HueSDKManager
  * will be tried first, usually resulting in a sub-second connection time.
  */
 @CompileStatic
+@SuppressWarnings("GrMethodMayBeStatic")
 class HueBridgeService {
 
-    static HueBridgeService createWithBridgeConnectionCallback(String appName, File configFile = null, BridgeConnectedCallback callback) {
-        new HueBridgeService(appName, configFile, callback)
+    HueBridgeService(String appName, Consumer<PHBridge> connectionCallback) {
+        this(appName, null, connectionCallback)
     }
 
-    private HueBridgeService(String appName, File configFile = null, BridgeConnectedCallback callback) {
+    //TODO: This `configFile` should probably be named `credentialsFile`
+    HueBridgeService(String appName, @Nullable File configFile, Consumer<PHBridge> connectionCallback) {
         try {
             HueSDKManager.initSDK(appName, configFile)
-            HueSDKManager.registerSDKListener(new HueSDKConnectionListener(callback))
-        } catch(exception) {
+            HueSDKManager.registerConnectionListener(new BridgeConnectionListener(connectionCallback))
+        } catch(Exception ex) {
             HueSDKManager.shutdown()
-            throw exception
+            throw ex
         }
     }
 
     /**
-     * Connects to a Hue bridge on the network by either:
-     * <ul>
-     *     <li>Reading a bridge's credentials from a properties file in the temp. directory</li>
-     *     <li>Searching over the network for a bridge</li>
-     * </ul>
+     * Starts the process to connect a Philips Hue bridge located on the same LAN.
      *
-     * The search process is done on a separate thread so that this method does not block.
+     * The process involves trying credentials, if any exist, or spinning up a
+     * separate thread to scan the network for a bridge and beginning the PushLink
+     * authentication process with it.
      */
-    void findAndConnectToBridge() {
+    void connectToBridgeOnLAN() {
         if(HueSDKManager.configFileHasValidCredentials()) {
             HueSDKManager.connectToBridgeUsingConfigFileCredentials()
         } else {
